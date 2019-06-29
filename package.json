@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "prepublish": "npm run build",
-    "build": "tsc",
+    "build": "ttsc",
     "test": "mocha --reporter spec"
   },
   "repository": {
@@ -16,7 +16,8 @@
   "keywords": [
     "kle",
     "keyboard-layout-editor",
-    "serialization"
+    "serialization",
+    "json"
   ],
   "author": "Ian Prest <npmjs.com@ian.prest.ca>",
   "license": "MIT",
@@ -27,6 +28,11 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "mocha": "^6.1.4",
+    "ts-transformer-keys": "^0.3.5",
+    "ttypescript": "^1.5.7",
     "typescript": "^3.5.2"
+  },
+  "dependencies": {
+    "json5": "^2.1.0"
   }
 }
