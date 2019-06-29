@@ -1,0 +1,32 @@
+{
+  "name": "@ijprest/kle-serial",
+  "version": "0.15.0",
+  "description": "Serialization library for keyboard-layout-editor.com",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "prepublish": "npm run build",
+    "build": "tsc",
+    "test": "mocha --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ijprest/kle-serial.git"
+  },
+  "keywords": [
+    "kle",
+    "keyboard-layout-editor",
+    "serialization"
+  ],
+  "author": "Ian Prest <npmjs.com@ian.prest.ca>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ijprest/kle-serial/issues"
+  },
+  "homepage": "https://github.com/ijprest/kle-serial#readme",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4",
+    "typescript": "^3.5.2"
+  }
+}
