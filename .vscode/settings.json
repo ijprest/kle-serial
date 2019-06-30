@@ -20,5 +20,6 @@
   "prettier.endOfLine": "crlf",
   "prettier.tabWidth": 2,
   "prettier.printWidth": 80,
-  "prettier.quoteProps": "consistent"
+  "prettier.quoteProps": "consistent",
+  "prettier.proseWrap": "always"
 }
