@@ -84,10 +84,11 @@ export class Serial {
     [ 4,-1,-1,-1,10,-1,-1,-1,-1,-1,-1,-1], // 7 = center front & x & y
   ];
 
-  static reorderLabelsIn(labels, align, skipdefault = false) {
+  static reorderLabelsIn(labels, align, def: string | null = null) {
     var ret: Array<any> = [];
-    for (var i = skipdefault ? 1 : 0; i < labels.length; ++i) {
-      ret[Serial.labelMap[align][i]] = labels[i];
+    for (var i = 0; i < labels.length; ++i) {
+      if (labels[i] && labels[i] !== def)
+        ret[Serial.labelMap[align][i]] = labels[i];
     }
     return ret;
   }
@@ -123,13 +124,13 @@ export class Serial {
             // Clean up the data
             for (var i = 0; i < 12; ++i) {
               if (!newKey.labels[i]) {
-                newKey.textSize[i] = undefined;
-                newKey.textColor[i] = undefined;
+                delete newKey.textSize[i];
+                delete newKey.textColor[i];
               }
               if (newKey.textSize[i] == newKey.default.textSize)
-                newKey.textSize[i] = undefined;
+                delete newKey.textSize[i];
               if (newKey.textColor[i] == newKey.default.textColor)
-                newKey.textColor[i] = undefined;
+                delete newKey.textColor[i];
             }
 
             // Add the key!
@@ -166,7 +167,7 @@ export class Serial {
             if (item.t) {
               var split = item.t.split("\n");
               current.default.textColor = split[0];
-              current.textColor = Serial.reorderLabelsIn(split, align);
+              current.textColor = Serial.reorderLabelsIn(split, align, current.default.textColor);
             }
             if (item.x) current.x += item.x;
             if (item.y) current.y += item.y;
