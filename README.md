@@ -22,13 +22,25 @@ so by using it, you can be sure that you are 100% compatible with the editor.
 Install the package via NPM:
 
 ```bash
-npm install ijprest/kle-serial --save
+npm install @ijprest/kle-serial --save
 ```
 
-Load into your `.js` files:
+## Usage
 
 ```js
-var kle = require("node_packages/kle-serial/dist/index");
+var kle = require("@ijprest/kle-serial");
+
+var keyboard = kle.Serial.deserialize([
+  { name: "Sample", author: "Your Name" },
+  ["Q", "W", "E", "R", "T", "Y"]
+]);
+
+// or
+
+var keyboard = kle.Serial.parse(`[
+  { name: "Sample", author: "Your Name" },
+  ["Q", "W", "E", "R", "T", "Y"]
+]`);
 ```
 
 ## API
@@ -39,6 +51,7 @@ kle.Serial.deserialize(rows: Array<any>): Keyboard
 
 - Given an array of keyboard rows, deserializes the result into a `Keyboard`
   object.
+- The first entry is optionally a keyboard metadata object.
 
 ```ts
 kle.Serial.parse(json5: string): Keyboard
@@ -47,9 +60,10 @@ kle.Serial.parse(json5: string): Keyboard
 - This function takes a JSON5-formatted string, parses it, then deserializes the
   result into a `Keyboard` object.
 - [JSON5](https://json5.org/) is a simplified / lenient version of JSON that is
-  easier for humans to type .
+  easier for humans to type; in particular, it doesn't require quotes around
+  property names. Any valid JSON string should also be a valid JSON5 string.
 
-## Keyboard Objects
+### Keyboard Objects
 
 ```ts
 class Keyboard {
@@ -143,9 +157,12 @@ export class Key {
 ```
 
 - `color` — the keycap color, e.g., `"#ff0000"` for red.
-- `labels` — an array of up to 12 text labels (sontimes referred to as
-  'legends'), in (English) reading order
-  - ![label order illustration](images/label-order.png)
+- `labels` — an array of up to 12 text labels (sometimes referred to as
+  'legends'):
+  - In reading order, i.e., left-to-right, top-to-bottom:
+    - ![label order illustration](images/label-order.png)
+  - The labels are user input, and may contain arbitrary HTML content; when
+    rendering, input sanitization is recommended for security purposes.
 - `textColor` — an array of up to 12 colors (e.g., `"#ff0000"`), to be used for
   the text labels; if any entries are `null` or `undefined`, you should use the
   `default.textColor`.
@@ -193,7 +210,7 @@ export class Key {
 - `sm` / `sb` / `st` — the switch _mount_, _brand_, and _type_, overriding the
   default values specified in the keyboard metadata.
 
-## Future Plans
+## Future Work
 
 In rough order of priority:
 
@@ -214,3 +231,9 @@ In rough order of priority:
    - Color palettes.
 5. Migrate HTML key rendering templates (and supporting stylesheets) from KLE to
    this project, so anyone can render a key identically to KLE.
+
+## Tests
+
+```bash
+npm test
+```
