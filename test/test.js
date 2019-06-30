@@ -347,4 +347,31 @@ describe("deserialization", function() {
       }
     });
   });
+
+  describe("of strings", function() {
+    it("should be lenient about quotes", function() {
+      var result1 = () =>
+        kbd.Serial.parse(`[
+        { name: "Sample", author: "Your Name" },
+        ["Q", "W", "E", "R", "T", "Y"]
+      ]`);
+
+      var result2 = () =>
+        kbd.Serial.parse(`[
+        { "name": "Sample", "author": "Your Name" },
+        ["Q", "W", "E", "R", "T", "Y"]
+      ]`);
+
+      var result3 = () =>
+        kbd.Serial.deserialize([
+          { name: "Sample", author: "Your Name" },
+          ["Q", "W", "E", "R", "T", "Y"]
+        ]);
+
+      expect(result1).to.not.throw();
+      expect(result2).to.not.throw();
+      expect(result1(), "1<>2").to.deep.equal(result2());
+      expect(result1(), "1<>3").to.deep.equal(result3());
+    });
+  });
 });
