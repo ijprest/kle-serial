@@ -1,5 +1,7 @@
 # kle-serial
 
+![travis-ci-status](https://travis-ci.org/ijprest/kle-serial.svg?branch=master)
+
 This is a [MIT-licensed](LICENSE) javascript library for parsing the serialized
 format used on keyboard-layout-editor.com (KLE) and converting it into something
 that is easier to understand and use in third-party applications.
