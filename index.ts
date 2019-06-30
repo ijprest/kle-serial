@@ -141,30 +141,18 @@ export class Serial {
             current.x2 = current.y2 = current.width2 = current.height2 = 0;
             current.nub = current.stepped = current.decal = false;
           } else {
-            if (item.r != null) {
-              if (k != 0)
-                Serial.deserializeError(
-                  "'r' can only be used on the first key in a row",
-                  item
-                );
-              current.rotation_angle = item.r;
+            if (
+              k != 0 &&
+              (item.r != null || item.rx != null || item.ry != null)
+            ) {
+              Serial.deserializeError(
+                "rotation can only be specified on the first key in a row",
+                item
+              );
             }
-            if (item.rx != null) {
-              if (k != 0)
-                Serial.deserializeError(
-                  "'rx' can only be used on the first key in a row",
-                  item
-                );
-              current.rotation_x = item.rx;
-            }
-            if (item.ry != null) {
-              if (k != 0)
-                Serial.deserializeError(
-                  "ry' can only be used on the first key in a row",
-                  item
-                );
-              current.rotation_y = item.ry;
-            }
+            if (item.r != null) current.rotation_angle = item.r;
+            if (item.rx != null) current.rotation_x = item.rx;
+            if (item.ry != null) current.rotation_y = item.ry;
             if (item.a != null) align = item.a;
             if (item.f) {
               current.default.textSize = item.f;
