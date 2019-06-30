@@ -1,6 +1,7 @@
 # kle-serial
 
 [![Build Status](https://travis-ci.org/ijprest/kle-serial.svg?branch=master)](https://travis-ci.org/ijprest/kle-serial)
+[![Coverage Status](https://coveralls.io/repos/github/ijprest/kle-serial/badge.svg?branch=master)](https://coveralls.io/github/ijprest/kle-serial?branch=master)
 [![npm version](https://badge.fury.io/js/%40ijprest%2Fkle-serial.svg)](https://badge.fury.io/js/%40ijprest%2Fkle-serial)
 [![Dependency Status](https://david-dm.org/ijprest/kle-serial.svg)](https://david-dm.org/ijprest/kle-serial)
 [![GitHub](https://img.shields.io/github/license/ijprest/kle-serial.svg)](LICENSE)
