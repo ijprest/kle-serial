@@ -49,7 +49,7 @@ export class Keyboard {
 
 export class Serial {
   // Helper to copy an object; doesn't handle loops/circular refs, etc.
-  static copy(o: any): any {
+  private static copy(o: any): any {
     if (typeof o !== "object") {
       return o; // primitive value
     } else if (o instanceof Array) {
@@ -84,7 +84,7 @@ export class Serial {
     [ 4,-1,-1,-1,10,-1,-1,-1,-1,-1,-1,-1], // 7 = center front & x & y
   ];
 
-  static reorderLabelsIn(labels, align, def: string | null = null) {
+  private static reorderLabelsIn(labels, align, def: string | null = null) {
     var ret: Array<any> = [];
     for (var i = 0; i < labels.length; ++i) {
       if (labels[i] && labels[i] !== def)
@@ -93,7 +93,7 @@ export class Serial {
     return ret;
   }
 
-  static deserializeError(msg, data?) {
+  private static deserializeError(msg, data?) {
     throw "Error: " + msg + (data ? ":\n  " + JSON5.stringify(data) : "");
   }
 
