@@ -33,7 +33,7 @@ export class Key {
 export class KeyboardMetadata {
   author: string = "";
   backcolor: string = "#eeeeee";
-  background?: string = "";
+  background: { name: string; style: string } | null = null;
   name: string = "";
   notes: string = "";
   radii: string = "";
@@ -213,8 +213,6 @@ export class Serial {
         }
       }
     }
-
-    if (kbd.meta.background === "") delete kbd.meta.backcolor;
     return kbd;
   }
 
