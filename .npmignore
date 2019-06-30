@@ -1,1 +1,4 @@
-lib/
+coverage/
+.vscode/
+.travis.yml
+*.tgz
