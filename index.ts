@@ -92,13 +92,17 @@ export class Serial {
     return ret;
   }
 
+  static deserializeError(msg, data?) {
+    throw "Error: " + msg + (data ? ":\n  " + JSON5.stringify(data) : "");
+  }
+
   static deserialize(rows: Array<any>): Keyboard {
-    if (!(rows instanceof Array)) throw "Error: expected an array of objects";
+    if (!(rows instanceof Array))
+      Serial.deserializeError("expected an array of objects");
 
     // Initialize with defaults
     let current: Key = new Key();
     let kbd = new Keyboard();
-    var cluster = { x: 0, y: 0 };
     var align = 4;
 
     for (var r = 0; r < rows.length; ++r) {
@@ -136,15 +140,73 @@ export class Serial {
             current.width = current.height = 1;
             current.x2 = current.y2 = current.width2 = current.height2 = 0;
             current.nub = current.stepped = current.decal = false;
+          } else {
+            if (item.r != null) {
+              if (k != 0)
+                Serial.deserializeError(
+                  "'r' can only be used on the first key in a row",
+                  item
+                );
+              current.rotation_angle = item.r;
+            }
+            if (item.rx != null) {
+              if (k != 0)
+                Serial.deserializeError(
+                  "'rx' can only be used on the first key in a row",
+                  item
+                );
+              current.rotation_x = item.rx;
+            }
+            if (item.ry != null) {
+              if (k != 0)
+                Serial.deserializeError(
+                  "ry' can only be used on the first key in a row",
+                  item
+                );
+              current.rotation_y = item.ry;
+            }
+            if (item.a != null) align = item.a;
+            if (item.f) {
+              current.default.textSize = item.f;
+              current.textSize = [];
+            }
+            if (item.f2)
+              for (var i = 1; i < 12; ++i) current.textSize[i] = item.f2;
+            if (item.fa) current.textSize = item.fa;
+            if (item.p) current.profile = item.p;
+            if (item.c) current.color = item.c;
+            if (item.t) {
+              var split = item.t.split("\n");
+              current.default.textColor = split[0];
+              current.textColor = Serial.reorderLabelsIn(split, align);
+            }
+            if (item.x) current.x += item.x;
+            if (item.y) current.y += item.y;
+            if (item.w) current.width = current.width2 = item.w;
+            if (item.h) current.height = current.height2 = item.h;
+            if (item.x2) current.x2 = item.x2;
+            if (item.y2) current.y2 = item.y2;
+            if (item.w2) current.width2 = item.w2;
+            if (item.h2) current.height2 = item.h2;
+            if (item.n) current.nub = item.n;
+            if (item.l) current.stepped = item.l;
+            if (item.d) current.decal = item.d;
+            if (item.g != null) current.ghost = item.g;
+            if (item.sm) current.sm = item.sm;
+            if (item.sb) current.sb = item.sb;
+            if (item.st) current.st = item.st;
           }
         }
 
         // End of the row
         current.y++;
+        current.x = current.rotation_x;
       } else if (typeof rows[r] === "object") {
         if (r != 0) {
-          throw "Error: keyboard metadata must the be first element:\n  " +
-            JSON5.stringify(rows[r]);
+          Serial.deserializeError(
+            "keyboard metadata must the be first element",
+            rows[r]
+          );
         }
         for (let prop in kbd.meta) {
           if (rows[r][prop]) kbd.meta[prop] = rows[r][prop];
