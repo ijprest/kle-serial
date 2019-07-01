@@ -14,7 +14,9 @@
     "**/.DS_Store": true,
     "dist/**": true,
     "node_modules/**": true,
-    "npm-debug.log": true
+    "npm-debug.log": true,
+    "coverage/**": true,
+    "**/*.tgz": true
   },
 
   "prettier.endOfLine": "crlf",
