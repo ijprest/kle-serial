@@ -47,15 +47,15 @@ export class Keyboard {
   keys: Key[] = [];
 }
 
-export class Serial {
+export module Serial {
   // Helper to copy an object; doesn't handle loops/circular refs, etc.
-  private static copy(o: any): any {
+  function copy(o: any): any {
     if (typeof o !== "object") {
       return o; // primitive value
     } else if (o instanceof Array) {
       var result: any[] = [];
       for (var i = 0; i < o.length; i++) {
-        result[i] = Serial.copy(o[i]);
+        result[i] = copy(o[i]);
       }
       return result;
     } else {
@@ -63,7 +63,7 @@ export class Serial {
       if (o.constructor) oresult.constructor();
       for (var prop in o) {
         if (typeof o[prop] !== "function" || !oresult[prop])
-          oresult[prop] = Serial.copy(o[prop]);
+          oresult[prop] = copy(o[prop]);
       }
       return oresult;
     }
@@ -72,7 +72,7 @@ export class Serial {
   // Map from serialized label position to normalized position,
   // depending on the alignment flags.
   // prettier-ignore
-  private static labelMap: Array<Array<number>> = [
+  let labelMap: Array<Array<number>> = [
     //0  1  2  3  4  5  6  7  8  9 10 11   // align flags
     [ 0, 6, 2, 8, 9,11, 3, 5, 1, 4, 7,10], // 0 = no centering
     [ 1, 7,-1,-1, 9,11, 4,-1,-1,-1,-1,10], // 1 = center x
@@ -84,22 +84,22 @@ export class Serial {
     [ 4,-1,-1,-1,10,-1,-1,-1,-1,-1,-1,-1], // 7 = center front & x & y
   ];
 
-  private static reorderLabelsIn(labels, align, def: string | null = null) {
+  function reorderLabelsIn(labels, align, def: string | null = null) {
     var ret: Array<any> = [];
     for (var i = 0; i < labels.length; ++i) {
       if (labels[i] && labels[i] !== def)
-        ret[Serial.labelMap[align][i]] = labels[i];
+        ret[labelMap[align][i]] = labels[i];
     }
     return ret;
   }
 
-  private static deserializeError(msg, data?) {
+  function deserializeError(msg, data?) {
     throw "Error: " + msg + (data ? ":\n  " + JSON5.stringify(data) : "");
   }
 
-  static deserialize(rows: Array<any>): Keyboard {
+  export function deserialize(rows: Array<any>): Keyboard {
     if (!(rows instanceof Array))
-      Serial.deserializeError("expected an array of objects");
+      deserializeError("expected an array of objects");
 
     // Initialize with defaults
     let current: Key = new Key();
@@ -111,15 +111,15 @@ export class Serial {
         for (var k = 0; k < rows[r].length; ++k) {
           var item = rows[r][k];
           if (typeof item === "string") {
-            var newKey: Key = Serial.copy(current);
+            var newKey: Key = copy(current);
 
             // Calculate some generated values
             newKey.width2 =
               newKey.width2 === 0 ? current.width : current.width2;
             newKey.height2 =
               newKey.height2 === 0 ? current.height : current.height2;
-            newKey.labels = Serial.reorderLabelsIn(item.split("\n"), align);
-            newKey.textSize = Serial.reorderLabelsIn(newKey.textSize, align);
+            newKey.labels = reorderLabelsIn(item.split("\n"), align);
+            newKey.textSize = reorderLabelsIn(newKey.textSize, align);
 
             // Clean up the data
             for (var i = 0; i < 12; ++i) {
@@ -146,7 +146,7 @@ export class Serial {
               k != 0 &&
               (item.r != null || item.rx != null || item.ry != null)
             ) {
-              Serial.deserializeError(
+              deserializeError(
                 "rotation can only be specified on the first key in a row",
                 item
               );
@@ -167,7 +167,7 @@ export class Serial {
             if (item.t) {
               var split = item.t.split("\n");
               current.default.textColor = split[0];
-              current.textColor = Serial.reorderLabelsIn(split, align, current.default.textColor);
+              current.textColor = reorderLabelsIn(split, align, current.default.textColor);
             }
             if (item.x) current.x += item.x;
             if (item.y) current.y += item.y;
@@ -192,7 +192,7 @@ export class Serial {
         current.x = current.rotation_x;
       } else if (typeof rows[r] === "object") {
         if (r != 0) {
-          Serial.deserializeError(
+          deserializeError(
             "keyboard metadata must the be first element",
             rows[r]
           );
@@ -205,7 +205,7 @@ export class Serial {
     return kbd;
   }
 
-  static parse(json: string): Keyboard {
-    return Serial.deserialize(JSON5.parse(json));
+  export function parse(json: string): Keyboard {
+    return deserialize(JSON5.parse(json));
   }
 }
