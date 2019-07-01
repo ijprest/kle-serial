@@ -9,6 +9,11 @@ describe("deserialization", function() {
     expect(result).to.throw();
   });
 
+  it("should fail on non array/object data", function() {
+    var result = () => kbd.Serial.deserialize(["test"]);
+    expect(result).to.throw();
+  });
+
   it("should return empty keyboard on empty array", function() {
     var result = kbd.Serial.deserialize([]);
     expect(result).to.be.an.instanceOf(kbd.Keyboard);
@@ -80,7 +85,9 @@ describe("deserialization", function() {
       expect(result.keys[0].x2).to.equal(0);
       expect(result.keys[0].y2).to.equal(0);
 
-      var result = kbd.Serial.deserialize([[{ x: 1, y: 1, x2: 2, y2: 2 }, "1"]]);
+      var result = kbd.Serial.deserialize([
+        [{ x: 1, y: 1, x2: 2, y2: 2 }, "1"]
+      ]);
       expect(result).to.be.an.instanceOf(kbd.Keyboard);
       expect(result.keys).to.have.length(1);
       expect(result.keys[0].x).to.not.equal(0);
@@ -132,6 +139,49 @@ describe("deserialization", function() {
       expect(result.keys[1].nub).to.be.false;
       expect(result.keys[1].decal).to.be.false;
     });
+
+    it("should propagate the ghost flag", function() {
+      var result = kbd.Serial.deserialize([["0", { g: true }, "1", "2"]]);
+      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+      expect(result.keys).to.have.length(3);
+      expect(result.keys[0].ghost).to.be.false;
+      expect(result.keys[1].ghost).to.be.true;
+      expect(result.keys[2].ghost).to.be.true;
+    });
+
+    it("should propagate the profile flag", function() {
+      var result = kbd.Serial.deserialize([["0", { p: "DSA" }, "1", "2"]]);
+      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+      expect(result.keys).to.have.length(3);
+      expect(result.keys[0].profile).to.be.empty;
+      expect(result.keys[1].profile).to.equal("DSA");
+      expect(result.keys[2].profile).to.equal("DSA");
+    });
+
+    it("should propagate switch properties", function() {
+      var result = kbd.Serial.deserialize([["1", { sm: "cherry" }, "2", "3"]]);
+      expect(result, "sm").to.be.an.instanceOf(kbd.Keyboard);
+      expect(result.keys, "sm").to.have.length(3);
+      expect(result.keys[0].sm, "sm_0").to.equal("");
+      expect(result.keys[1].sm, "sm_1").to.equal("cherry");
+      expect(result.keys[2].sm, "sm_2").to.equal("cherry");
+
+      var result = kbd.Serial.deserialize([["1", { sb: "cherry" }, "2", "3"]]);
+      expect(result, "sb").to.be.an.instanceOf(kbd.Keyboard);
+      expect(result.keys, "sb").to.have.length(3);
+      expect(result.keys[0].sb, "sb_0").to.equal("");
+      expect(result.keys[1].sb, "sb_1").to.equal("cherry");
+      expect(result.keys[2].sb, "sb_2").to.equal("cherry");
+
+      var result = kbd.Serial.deserialize([
+        ["1", { st: "MX1A-11Nx" }, "2", "3"]
+      ]);
+      expect(result, "st").to.be.an.instanceOf(kbd.Keyboard);
+      expect(result.keys, "st").to.have.length(3);
+      expect(result.keys[0].st, "st_0").to.equal("");
+      expect(result.keys[1].st, "st_1").to.equal("MX1A-11Nx");
+      expect(result.keys[2].st, "st_2").to.equal("MX1A-11Nx");
+    });
   });
 
   describe("of text color", function() {
@@ -154,7 +204,9 @@ describe("deserialization", function() {
       expect(result).to.be.an.instanceOf(kbd.Keyboard);
       expect(result.keys).to.have.length(1);
       expect(result.keys[0].default.textColor).to.equal("#444444");
-      expect(result.keys[0].textColor).to.have.length(0);
+      for (var i = 0; i < 12; ++i) {
+        expect(result.keys[0].textColor[i], `[${i}]`).to.be.undefined;
+      }
     });
 
     it("should handle generic case", function() {
@@ -195,6 +247,35 @@ describe("deserialization", function() {
           expect(color, `i=${i}`).to.equal("#111111");
         else expect(color, `i=${i}`).to.equal(result.keys[0].labels[i]);
       }
+    });
+
+    it("should not reset default color if blank", function() {
+      var result = kbd.Serial.deserialize([
+        [{ t: "#ff0000" }, "1", { t: "\n#00ff00" }, "2"]
+      ]);
+      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+      expect(result.keys).to.have.length(2);
+      expect(result.keys[0].default.textColor, "[0]").to.equal("#ff0000");
+      expect(result.keys[1].default.textColor, "[1]").to.equal("#ff0000");
+    });
+
+    it("should delete values equal to the default", function() {
+      var result = kbd.Serial.deserialize([
+        [
+          { t: "#ff0000" },
+          "1",
+          { t: "\n#ff0000" },
+          "\n2",
+          { t: "\n#00ff00" },
+          "\n3"
+        ]
+      ]);
+      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+      expect(result.keys).to.have.length(3);
+      expect(result.keys[1].labels[6]).to.equal("2");
+      expect(result.keys[1].textColor[6]).to.be.undefined;
+      expect(result.keys[2].labels[6]).to.equal("3");
+      expect(result.keys[2].textColor[6]).to.equal("#00ff00");
     });
   });
 
@@ -344,6 +425,28 @@ describe("deserialization", function() {
           }
         }
       }
+    });
+
+    it("should not reset default size if blank", function() {
+      var result = kbd.Serial.deserialize([
+        [{ f: 1 }, "1", { fa: [, 2] }, "2"]
+      ]);
+      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+      expect(result.keys).to.have.length(2);
+      expect(result.keys[0].default.textSize, "[0]").to.equal(1);
+      expect(result.keys[1].default.textSize, "[1]").to.equal(1);
+    });
+
+    it("should delete values equal to the default", function() {
+      var result = kbd.Serial.deserialize([
+        [{ f: 1 }, "1", { fa: "\n1" }, "\n2", { fa: "\n2" }, "\n3"]
+      ]);
+      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+      expect(result.keys).to.have.length(3);
+      expect(result.keys[1].labels[6]).to.equal("2");
+      expect(result.keys[1].textSize[6]).to.be.undefined;
+      expect(result.keys[2].labels[6]).to.equal("3");
+      expect(result.keys[2].textSize[6]).to.equal("2");
     });
   });
 

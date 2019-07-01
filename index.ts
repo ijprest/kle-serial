@@ -60,10 +60,9 @@ export module Serial {
       return result;
     } else {
       var oresult: object = Object.create(Object.getPrototypeOf(o));
-      if (o.constructor) oresult.constructor();
+      oresult.constructor();
       for (var prop in o) {
-        if (typeof o[prop] !== "function" || !oresult[prop])
-          oresult[prop] = copy(o[prop]);
+        oresult[prop] = copy(o[prop]);
       }
       return oresult;
     }
@@ -84,11 +83,10 @@ export module Serial {
     [ 4,-1,-1,-1,10,-1,-1,-1,-1,-1,-1,-1], // 7 = center front & x & y
   ];
 
-  function reorderLabelsIn(labels, align, def: string | null = null) {
+  function reorderLabelsIn(labels, align) {
     var ret: Array<any> = [];
     for (var i = 0; i < labels.length; ++i) {
-      if (labels[i] && labels[i] !== def)
-        ret[labelMap[align][i]] = labels[i];
+      if (labels[i]) ret[labelMap[align][i]] = labels[i];
     }
     return ret;
   }
@@ -166,8 +164,8 @@ export module Serial {
             if (item.c) current.color = item.c;
             if (item.t) {
               var split = item.t.split("\n");
-              current.default.textColor = split[0];
-              current.textColor = reorderLabelsIn(split, align, current.default.textColor);
+              if (split[0] != "") current.default.textColor = split[0];
+              current.textColor = reorderLabelsIn(split, align);
             }
             if (item.x) current.x += item.x;
             if (item.y) current.y += item.y;
@@ -200,6 +198,8 @@ export module Serial {
         for (let prop in kbd.meta) {
           if (rows[r][prop]) kbd.meta[prop] = rows[r][prop];
         }
+      } else {
+        deserializeError("unexpected", rows[r]);
       }
     }
     return kbd;
