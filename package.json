@@ -1,5 +1,5 @@
 {
-  "name": "@ijprest/kle-serial",
+  "name": "@buckwich/kle-serial",
   "version": "0.15.1",
   "description": "Serialization library for keyboard-layout-editor.com",
   "main": "dist/index.js",
@@ -35,6 +35,7 @@
     "typescript": "^3.5.3"
   },
   "dependencies": {
+    "@types/json5": "0.0.30",
     "json5": "^2.1.0"
   }
 }
