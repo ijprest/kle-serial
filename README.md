@@ -23,6 +23,40 @@ older / deprecated properties.
 This library is the same code that KLE itself uses to parse serialized layouts,
 so by using it, you can be sure that you are 100% compatible with the editor.
 
+## Fork
+
+Added serialization, at the moment this is a direct extraction of the old JS
+code from teh websote / Github Repo. Todos are testing and correct type
+annotations. At the same time I split the code in seperate files for better
+readability.
+
+New function:
+
+```ts
+import { Serial } from "@buckwich/kle-serial";
+
+let object = Serial.serialize(Your Keyboard object);
+let jsonString = Serial.stringify(Your Keyboard object);
+```
+
+```js
+var kle = require("@buckwich/kle-serial");
+
+var object = kle.Serial.serialize(Your Keyboard object);
+var jsonString = kle.Serial.stringify(Your Keyboard object);
+```
+
+To use this fork the best option currently is to link this package in place
+until it is merged:
+
+```bash
+# clone and npm i this repo. Run in folder
+npm link
+
+# In your project
+npm link @buckwich/kle-serial
+```
+
 ## Installation
 
 Install the package via NPM:

@@ -6,8 +6,7 @@
     "outDir": "./dist",
     "strict": true,
     "noImplicitAny": false,
-    "plugins": [
-      { "transform": "ts-transformer-keys/transformer" }
-    ]
-  }
+    "plugins": [{ "transform": "ts-transformer-keys/transformer" }]
+  },
+  "files": ["src/index.ts"]
 }
