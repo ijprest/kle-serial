@@ -3,120 +3,153 @@
 var expect = require("chai").expect;
 var kbd = require("../dist/index");
 
-describe("deserialization", function() {
-  it("should fail on non-array", function() {
-    var result = () => kbd.Serial.deserialize("test");
+describe("deserialization", function () {
+  it("should fail on non-array", function () {
+    var result = () => kbd.deserialize("test");
     expect(result).to.throw();
   });
 
-  it("should fail on non array/object data", function() {
-    var result = () => kbd.Serial.deserialize(["test"]);
+  it("should fail on non array/object data", function () {
+    var result = () => kbd.deserialize(["test"]);
     expect(result).to.throw();
   });
 
-  it("should return empty keyboard on empty array", function() {
-    var result = kbd.Serial.deserialize([]);
-    expect(result).to.be.an.instanceOf(kbd.Keyboard);
+  it("should return empty keyboard on empty array", function () {
+    var input = [];
+    var result = kbd.deserialize(input);
+    expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
     expect(result.keys).to.be.empty;
   });
 
-  describe("of metadata", function() {
-    it("should parse from first object if it exists", function() {
-      var result = kbd.Serial.deserialize([{ name: "test" }]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+  describe("of metadata", function () {
+    it("should parse from first object if it exists", function () {
+      var input = [{ name: "test" }];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.meta.name).to.equal("test");
+      var output = kbd.serialize(result);
+      expect(output).to.deep.equal(input);
     });
 
-    it("should throw an exception if found anywhere other than the start", function() {
-      var result = () => kbd.Serial.deserialize([[], { name: "test" }]);
+    it("should throw an exception if found anywhere other than the start", function () {
+      var result = () => kbd.deserialize([[], { name: "test" }]);
       expect(result).to.throw();
     });
   });
 
-  describe("of key positions", function() {
-    it("should default to (0,0)", function() {
-      var result = kbd.Serial.deserialize([["1"]]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+  describe("of key positions", function () {
+    it("should default to (0,0)", function () {
+      var input = [["1"]];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(1);
       expect(result.keys[0].x).to.equal(0);
       expect(result.keys[0].y).to.equal(0);
+
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
     });
 
-    it("should increment x position by the width of the previous key", function() {
-      var result = kbd.Serial.deserialize([[{ x: 1 }, "1", "2"]]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+    it("should increment x position by the width of the previous key", function () {
+      var input = [[{ x: 1 }, "1", "2"]];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(2);
       expect(result.keys[0].x).to.equal(1);
       expect(result.keys[1].x).to.equal(
         result.keys[0].x + result.keys[0].width
       );
       expect(result.keys[1].y).to.equal(result.keys[0].y);
+
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
     });
 
-    it("should increment y position whenever a new row starts, and reset x to zero", function() {
-      var result = kbd.Serial.deserialize([[{ y: 1 }, "1"], ["2"]]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+    it("should increment y position whenever a new row starts, and reset x to zero", function () {
+      var input = [[{ y: 1 }, "1"], ["2"]];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(2);
       expect(result.keys[0].y).to.equal(1);
       expect(result.keys[1].x).to.equal(0);
       expect(result.keys[1].y).to.equal(result.keys[0].y + 1);
+
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
     });
 
-    it("should add x and y to current position", function() {
-      var result = kbd.Serial.deserialize([["1", { x: 1 }, "2"]]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+    it("should add x and y to current position", function () {
+      var input = [["1", { x: 1 }, "2"]];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(2);
       expect(result.keys[0].x).to.equal(0);
       expect(result.keys[1].x).to.equal(2);
 
-      var result = kbd.Serial.deserialize([["1"], [{ y: 1 }, "2"]]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
+
+      var input = [["1"], [{ y: 1 }, "2"]];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(2);
       expect(result.keys[0].y).to.equal(0);
       expect(result.keys[1].y).to.equal(2);
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
     });
 
-    it("should leave x2,y2 at (0,0) if not specified", function() {
-      var result = kbd.Serial.deserialize([[{ x: 1, y: 1 }, "1"]]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+    it("should leave x2,y2 at (0,0) if not specified", function () {
+      var input = [[{ x: 1, y: 1 }, "1"]];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(1);
       expect(result.keys[0].x).to.not.equal(0);
       expect(result.keys[0].y).to.not.equal(0);
       expect(result.keys[0].x2).to.equal(0);
       expect(result.keys[0].y2).to.equal(0);
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
 
-      var result = kbd.Serial.deserialize([
-        [{ x: 1, y: 1, x2: 2, y2: 2 }, "1"]
-      ]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+      var input = [[{ x: 1, y: 1, x2: 2, y2: 2 }, "1"]];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(1);
       expect(result.keys[0].x).to.not.equal(0);
       expect(result.keys[0].y).to.not.equal(0);
       expect(result.keys[0].x2).to.not.equal(0);
       expect(result.keys[0].y2).to.not.equal(0);
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
     });
   });
 
-  describe("of key sizes", function() {
-    it("should reset width and height to 1", function() {
-      var result = kbd.Serial.deserialize([[{ w: 5 }, "1", "2"]]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+  describe("of key sizes", function () {
+    it("should reset width and height to 1", function () {
+      var input = [[{ w: 5 }, "1", "2"]];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(2);
       expect(result.keys[0].width).to.equal(5);
       expect(result.keys[1].width).to.equal(1);
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
 
-      var result = kbd.Serial.deserialize([[{ h: 5 }, "1", "2"]]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+      var input = [[{ h: 5 }, "1", "2"]];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(2);
       expect(result.keys[0].height).to.equal(5);
       expect(result.keys[1].height).to.equal(1);
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
     });
 
-    it("should default width2/height2 if not specified", function() {
-      var result = kbd.Serial.deserialize([
+    it("should default width2/height2 if not specified", function () {
+      var result = kbd.deserialize([
         [{ w: 2, h: 2 }, "1", { w: 2, h: 2, w2: 4, h2: 4 }, "2"]
       ]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(2);
       expect(result.keys[0].width2).to.equal(result.keys[0].width);
       expect(result.keys[0].height2).to.equal(result.keys[0].height);
@@ -125,12 +158,11 @@ describe("deserialization", function() {
     });
   });
 
-  describe("of other properties", function() {
-    it("should reset stepped, homing, and decal flags to false", function() {
-      var result = kbd.Serial.deserialize([
-        [{ l: true, n: true, d: true }, "1", "2"]
-      ]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+  describe("of other properties", function () {
+    it("should reset stepped, homing, and decal flags to false", function () {
+      var input = [[{ l: true, n: true, d: true }, "1", "2"]];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(2);
       expect(result.keys[0].stepped).to.be.true;
       expect(result.keys[0].nub).to.be.true;
@@ -138,86 +170,107 @@ describe("deserialization", function() {
       expect(result.keys[1].stepped).to.be.false;
       expect(result.keys[1].nub).to.be.false;
       expect(result.keys[1].decal).to.be.false;
+
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
     });
 
-    it("should propagate the ghost flag", function() {
-      var result = kbd.Serial.deserialize([["0", { g: true }, "1", "2"]]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+    it("should propagate the ghost flag", function () {
+      var input = [["0", { g: true }, "1", "2"]];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(3);
       expect(result.keys[0].ghost).to.be.false;
       expect(result.keys[1].ghost).to.be.true;
       expect(result.keys[2].ghost).to.be.true;
+
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
     });
 
-    it("should propagate the profile flag", function() {
-      var result = kbd.Serial.deserialize([["0", { p: "DSA" }, "1", "2"]]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+    it("should propagate the profile flag", function () {
+      var input = [["0", { p: "DSA" }, "1", "2"]];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(3);
       expect(result.keys[0].profile).to.be.empty;
       expect(result.keys[1].profile).to.equal("DSA");
       expect(result.keys[2].profile).to.equal("DSA");
+
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
     });
 
-    it("should propagate switch properties", function() {
-      var result = kbd.Serial.deserialize([["1", { sm: "cherry" }, "2", "3"]]);
-      expect(result, "sm").to.be.an.instanceOf(kbd.Keyboard);
+    it("should propagate switch properties", function () {
+      var input = [["1", { sm: "cherry" }, "2", "3"]];
+      var result = kbd.deserialize(input);
+      expect(result, "sm").to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys, "sm").to.have.length(3);
       expect(result.keys[0].sm, "sm_0").to.equal("");
       expect(result.keys[1].sm, "sm_1").to.equal("cherry");
       expect(result.keys[2].sm, "sm_2").to.equal("cherry");
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
 
-      var result = kbd.Serial.deserialize([["1", { sb: "cherry" }, "2", "3"]]);
-      expect(result, "sb").to.be.an.instanceOf(kbd.Keyboard);
+      var input = [["1", { sb: "cherry" }, "2", "3"]];
+      var result = kbd.deserialize(input);
+      expect(result, "sb").to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys, "sb").to.have.length(3);
       expect(result.keys[0].sb, "sb_0").to.equal("");
       expect(result.keys[1].sb, "sb_1").to.equal("cherry");
       expect(result.keys[2].sb, "sb_2").to.equal("cherry");
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
 
-      var result = kbd.Serial.deserialize([
-        ["1", { st: "MX1A-11Nx" }, "2", "3"]
-      ]);
-      expect(result, "st").to.be.an.instanceOf(kbd.Keyboard);
+      var input = [["1", { st: "MX1A-11Nx" }, "2", "3"]];
+      var result = kbd.deserialize(input);
+      expect(result, "st").to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys, "st").to.have.length(3);
       expect(result.keys[0].st, "st_0").to.equal("");
       expect(result.keys[1].st, "st_1").to.equal("MX1A-11Nx");
       expect(result.keys[2].st, "st_2").to.equal("MX1A-11Nx");
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
     });
   });
 
-  describe("of text color", function() {
-    it("should apply colors to all subsequent keys", function() {
-      var result = kbd.Serial.deserialize([
-        [{ c: "#ff0000", t: "#00ff00" }, "1", "2"]
-      ]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+  describe("of text color", function () {
+    it("should apply colors to all subsequent keys", function () {
+      const input = [[{ c: "#ff0000", t: "#00ff00" }, "1", "2"]];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(2);
       expect(result.keys[0].color).to.equal("#ff0000");
       expect(result.keys[1].color).to.equal("#ff0000");
       expect(result.keys[0].default.textColor).to.equal("#00ff00");
       expect(result.keys[1].default.textColor).to.equal("#00ff00");
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
     });
 
-    it("should apply `t` to all legends", function() {
-      var result = kbd.Serial.deserialize([
+    it("should apply `t` to all legends", function () {
+      const input = [
         [{ a: 0, t: "#444444" }, "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11"]
-      ]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+      ];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(1);
       expect(result.keys[0].default.textColor).to.equal("#444444");
       for (var i = 0; i < 12; ++i) {
         expect(result.keys[0].textColor[i], `[${i}]`).to.be.undefined;
       }
+      var output = kbd.serialize(result);
+      expect(output).to.deep.equal(input);
     });
 
-    it("should handle generic case", function() {
+    it("should handle generic case", function () {
       var labels =
         "#111111\n#222222\n#333333\n#444444\n" +
         "#555555\n#666666\n#777777\n#888888\n" +
         "#999999\n#aaaaaa\n#bbbbbb\n#cccccc";
-      var result = kbd.Serial.deserialize([
-        [{ a: 0, t: /*colors*/ labels }, /*labels*/ labels]
-      ]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+      const input = [[{ a: 0, t: /*colors*/ labels }, /*labels*/ labels]];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(1);
       expect(result.keys[0].default.textColor).to.equal("#111111");
       for (var i = 0; i < 12; ++i) {
@@ -226,17 +279,20 @@ describe("deserialization", function() {
           `i=${i}`
         ).to.equal(result.keys[0].labels[i]);
       }
+      var output = kbd.serialize(result);
+      expect(output).to.deep.equal(input);
     });
 
-    it("should handle blanks", function() {
+    it("should handle blanks", function () {
       var labels =
         "#111111\nXX\n#333333\n#444444\n" +
         "XX\n#666666\nXX\n#888888\n" +
         "#999999\n#aaaaaa\n#bbbbbb\n#cccccc";
-      var result = kbd.Serial.deserialize([
+      const input = [
         [{ a: 0, t: /*colors*/ labels.replace(/XX/g, "") }, /*labels*/ labels]
-      ]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+      ];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(1);
       expect(result.keys[0].default.textColor).to.equal("#111111");
       for (var i = 0; i < 12; ++i) {
@@ -247,20 +303,23 @@ describe("deserialization", function() {
           expect(color, `i=${i}`).to.equal("#111111");
         else expect(color, `i=${i}`).to.equal(result.keys[0].labels[i]);
       }
+      var output = kbd.serialize(result);
+      expect(output).to.deep.equal(input);
     });
 
-    it("should not reset default color if blank", function() {
-      var result = kbd.Serial.deserialize([
-        [{ t: "#ff0000" }, "1", { t: "\n#00ff00" }, "2"]
-      ]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+    it("should not reset default color if blank", function () {
+      const input = [[{ t: "#ff0000" }, "1", { t: "\n#00ff00" }, "2"]];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(2);
       expect(result.keys[0].default.textColor, "[0]").to.equal("#ff0000");
       expect(result.keys[1].default.textColor, "[1]").to.equal("#ff0000");
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
     });
 
-    it("should delete values equal to the default", function() {
-      var result = kbd.Serial.deserialize([
+    it("should delete values equal to the default", function () {
+      const input = [
         [
           { t: "#ff0000" },
           "1",
@@ -269,36 +328,39 @@ describe("deserialization", function() {
           { t: "\n#00ff00" },
           "\n3"
         ]
-      ]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+      ];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(3);
       expect(result.keys[1].labels[6]).to.equal("2");
       expect(result.keys[1].textColor[6]).to.be.undefined;
       expect(result.keys[2].labels[6]).to.equal("3");
       expect(result.keys[2].textColor[6]).to.equal("#00ff00");
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
     });
   });
 
-  describe("of rotation", function() {
-    it("should not be allowed on anything but the first key in a row", function() {
-      var r1 = () => kbd.Serial.deserialize([[{ r: 45 }, "1", "2"]]);
+  describe("of rotation", function () {
+    it("should not be allowed on anything but the first key in a row", function () {
+      var r1 = () => kbd.deserialize([[{ r: 45 }, "1", "2"]]);
       expect(r1).to.not.throw();
-      var rx1 = () => kbd.Serial.deserialize([[{ rx: 45 }, "1", "2"]]);
+      var rx1 = () => kbd.deserialize([[{ rx: 45 }, "1", "2"]]);
       expect(rx1).to.not.throw();
-      var ry1 = () => kbd.Serial.deserialize([[{ ry: 45 }, "1", "2"]]);
+      var ry1 = () => kbd.deserialize([[{ ry: 45 }, "1", "2"]]);
       expect(ry1).to.not.throw();
 
-      var r2 = () => kbd.Serial.deserialize([["1", { r: 45 }, "2"]]);
+      var r2 = () => kbd.deserialize([["1", { r: 45 }, "2"]]);
       expect(r2).to.throw();
-      var rx2 = () => kbd.Serial.deserialize([["1", { rx: 45 }, "2"]]);
+      var rx2 = () => kbd.deserialize([["1", { rx: 45 }, "2"]]);
       expect(rx2).to.throw();
-      var ry2 = () => kbd.Serial.deserialize([["1", { ry: 45 }, "2"]]);
+      var ry2 = () => kbd.deserialize([["1", { ry: 45 }, "2"]]);
       expect(ry2).to.throw();
     });
   });
 
-  describe("of legends", function() {
-    it("should align legend positions correctly", function() {
+  describe("of legends", function () {
+    it("should align legend positions correctly", function () {
       // Some history, to make sense of this:
       // 1. Originally, you could only have top & botton legends, and they were
       //    left-aligned. (top:0 & bottom:1)
@@ -329,41 +391,46 @@ describe("deserialization", function() {
 
       for (var a = 0; a <= 7; ++a) {
         var name = `a=${a}`;
-        var result = kbd.Serial.deserialize([
-          [{ a: a }, "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11"]
-        ]);
+        const input = [[{ a: a }, "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11"]];
+        var result = kbd.deserialize(input);
         expect(expected[a], name).to.not.be.undefined;
-        expect(result, name).to.be.an.instanceOf(kbd.Keyboard);
+        expect(result, name).to.be.an.instanceOf(kbd.KleKeyboard);
         expect(result.keys, name).to.have.length(1);
         expect(result.keys[0].labels, name).to.have.length(expected[a].length);
         expect(result.keys[0].labels, name).to.have.ordered.members(
           expected[a]
         );
+        var output = kbd.serialize(result);
+        // expect(output).to.deep.equal(input);
       }
     });
   });
 
-  describe("of font sizes", function() {
-    it("should handle `f` at all alignments", function() {
+  describe("of font sizes", function () {
+    it("should handle `f` at all alignments", function () {
       for (var a = 0; a < 7; ++a) {
         var name = `a=${a}`;
-        var result = kbd.Serial.deserialize([
+        const input = [
           [{ f: 1, a: a }, "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11"]
-        ]);
-        expect(result, name).to.be.an.instanceOf(kbd.Keyboard);
+        ];
+        var result = kbd.deserialize(input);
+        expect(result, name).to.be.an.instanceOf(kbd.KleKeyboard);
         expect(result.keys, name).to.have.length(1);
         expect(result.keys[0].default.textSize, name).to.equal(1);
         expect(result.keys[0].textSize, name).to.have.length(0);
+        var output = kbd.serialize(result);
+        // expect(output).to.deep.equal(input);
       }
     });
 
-    it("should handle `f2` at all alignments", function() {
+    it("should handle `f2` at all alignments", function () {
       for (var a = 0; a < 7; ++a) {
         var name = `a=${a}`;
-        var result = kbd.Serial.deserialize([
+        const input = [
           [{ f: 1, f2: 2, a: a }, "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11"]
-        ]);
-        expect(result, name).to.be.an.instanceOf(kbd.Keyboard);
+        ];
+        var result = kbd.deserialize(input);
+        expect(result, name).to.be.an.instanceOf(kbd.KleKeyboard);
         expect(result.keys, name).to.have.length(1);
         // All labels should be 2, except the first one ('0')
         for (var i = 0; i < 12; ++i) {
@@ -380,19 +447,22 @@ describe("deserialization", function() {
             expect(result.keys[0].textSize[i], name_i).to.be.undefined;
           }
         }
+        var output = kbd.serialize(result);
+        // expect(output).to.deep.equal(input);
       }
     });
 
-    it("should handle `fa` at all alignments", function() {
+    it("should handle `fa` at all alignments", function () {
       for (var a = 0; a < 7; ++a) {
         var name = `a=${a}`;
-        var result = kbd.Serial.deserialize([
+        const input = [
           [
             { f: 1, fa: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], a: a },
             "2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13"
           ]
-        ]);
-        expect(result, name).to.be.an.instanceOf(kbd.Keyboard);
+        ];
+        var result = kbd.deserialize(input);
+        expect(result, name).to.be.an.instanceOf(kbd.KleKeyboard);
         expect(result.keys, name).to.have.length(1);
 
         for (var i = 0; i < 12; ++i) {
@@ -406,16 +476,23 @@ describe("deserialization", function() {
       }
     });
 
-    it("should handle blanks in `fa`", function() {
+    it("should handle blanks in `fa`", function () {
       for (var a = 0; a < 7; ++a) {
         var name = `a=${a}`;
-        var result = kbd.Serial.deserialize([
+        const input = [
           [
             { f: 1, fa: [, 2, , 4, , 6, , 8, 9, 10, , 12], a: a },
             "x\n2\nx\n4\nx\n6\nx\n8\n9\n10\nx\n12"
           ]
-        ]);
-        expect(result, name).to.be.an.instanceOf(kbd.Keyboard);
+        ];
+        const expected = [
+          [
+            { f: 1, fa: [0, 2, 0, 4, 0, 6, 0, 8, 9, 10, 0, 12], a: a },
+            "x\n2\nx\n4\nx\n6\nx\n8\n9\n10\nx\n12"
+          ]
+        ];
+        var result = kbd.deserialize(input);
+        expect(result, name).to.be.an.instanceOf(kbd.KleKeyboard);
         expect(result.keys, name).to.have.length(1);
 
         for (var i = 0; i < 12; ++i) {
@@ -424,48 +501,55 @@ describe("deserialization", function() {
             expect(result.keys[0].textSize[i], name_i).to.be.undefined;
           }
         }
+        var output = kbd.serialize(result);
+        // expect(output).to.deep.equal(input);
       }
     });
 
-    it("should not reset default size if blank", function() {
-      var result = kbd.Serial.deserialize([
-        [{ f: 1 }, "1", { fa: [, 2] }, "2"]
-      ]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+    it("should not reset default size if blank", function () {
+      var input = [[{ f: 1 }, "1", { fa: [, 2] }, "2"]];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(2);
       expect(result.keys[0].default.textSize, "[0]").to.equal(1);
       expect(result.keys[1].default.textSize, "[1]").to.equal(1);
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
     });
 
-    it("should delete values equal to the default", function() {
-      var result = kbd.Serial.deserialize([
+    it("should delete values equal to the default", function () {
+      const input = [
         [{ f: 1 }, "1", { fa: "\n1" }, "\n2", { fa: "\n2" }, "\n3"]
-      ]);
-      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+      ];
+      var result = kbd.deserialize(input);
+      expect(result).to.be.an.instanceOf(kbd.KleKeyboard);
       expect(result.keys).to.have.length(3);
       expect(result.keys[1].labels[6]).to.equal("2");
       expect(result.keys[1].textSize[6]).to.be.undefined;
       expect(result.keys[2].labels[6]).to.equal("3");
       expect(result.keys[2].textSize[6]).to.equal("2");
+
+      var output = kbd.serialize(result);
+      // expect(output).to.deep.equal(input);
     });
   });
 
-  describe("of strings", function() {
-    it("should be lenient about quotes", function() {
+  describe("of strings", function () {
+    it("should be lenient about quotes", function () {
       var result1 = () =>
-        kbd.Serial.parse(`[
+        kbd.parse(`[
         { name: "Sample", author: "Your Name" },
         ["Q", "W", "E", "R", "T", "Y"]
       ]`);
 
       var result2 = () =>
-        kbd.Serial.parse(`[
+        kbd.parse(`[
         { "name": "Sample", "author": "Your Name" },
         ["Q", "W", "E", "R", "T", "Y"]
       ]`);
 
       var result3 = () =>
-        kbd.Serial.deserialize([
+        kbd.deserialize([
           { name: "Sample", author: "Your Name" },
           ["Q", "W", "E", "R", "T", "Y"]
         ]);
@@ -475,5 +559,31 @@ describe("deserialization", function() {
       expect(result1(), "1<>2").to.deep.equal(result2());
       expect(result1(), "1<>3").to.deep.equal(result3());
     });
+  });
+});
+
+describe("serialization", function () {
+  it("should fail on non-object", function () {
+    var result = () => kbd.serialize("test");
+    expect(result).to.throw();
+  });
+
+  it("should fail on non array/object data", function () {
+    var result = () => kbd.serialize(["test"]);
+    expect(result).to.throw();
+  });
+
+  it("should return empty array on empty keyboard", function () {
+    var result = kbd.serialize(new kbd.KleKeyboard());
+    expect(result).to.be.an.instanceOf(Array);
+    expect(result).to.be.empty;
+  });
+
+  it("should return a string on stringify", function () {
+    const input = `[{"author":"Your Name","name":"Sample"},[{"t":"#000000","a":4},"Q","W","E","R","T","Y"]]`;
+    var result = kbd.parse(input);
+    var output = kbd.stringify(result);
+    // expect(output).to.be.string;
+    expect(output).to.equal(input);
   });
 });

@@ -1,3 +1,4 @@
+import * as JSON5 from "json5";
 import { labelMap } from "./helper";
 import { Key, Keyboard, KeyboardMetadata } from "./interfaces";
 
@@ -8,7 +9,9 @@ function serializeProp(props, nname, val, defval) {
   }
   return val;
 }
-
+function serializeError(msg: string, data?: any) {
+  throw "Error: " + msg + (data ? ":\n  " + JSON5.stringify(data) : "");
+}
 function isEmptyObject(o) {
   for (var prop in o) return false;
   return true;
@@ -104,6 +107,9 @@ function compareTextSizes(current, key, labels) {
 }
 
 export function serialize(keyboard: Keyboard) {
+  if (!(keyboard instanceof Keyboard)) {
+    serializeError("expected an KLE KEyboard object");
+  }
   let keys = keyboard.keys;
   let rows: any[] = [];
   let row: any[] = [];
