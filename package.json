@@ -1,18 +1,18 @@
 {
-  "name": "@ijprest/kle-serial",
+  "name": "@qmk-helper/kle-serial",
   "version": "0.15.1",
   "description": "Serialization library for keyboard-layout-editor.com",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "build": "tsc",
     "test": "mocha --reporter spec",
-    "cover": "node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec"
+    "cover": "nyc --reporter lcov --reporter text-summary npm run test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ijprest/kle-serial.git"
+    "url": "git+https://github.com/qmk-helper/kle-serial/"
   },
   "keywords": [
     "kle",
@@ -23,18 +23,18 @@
   "author": "Ian Prest <npmjs.com@ian.prest.ca>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ijprest/kle-serial/issues"
+    "url": "https://github.com/qmk-helper/kle-serial/issues"
   },
-  "homepage": "https://github.com/ijprest/kle-serial#readme",
+  "homepage": "https://github.com/qmk-helper/kle-serial/#readme",
   "devDependencies": {
+    "@types/json5": "0.0.30",
     "chai": "^4.2.0",
-    "coveralls": "^3.0.5",
-    "istanbul": "^0.4.5",
-    "mocha": "^6.1.4",
-    "mocha-lcov-reporter": "^1.3.0",
-    "typescript": "^3.5.3"
+    "coveralls": "^3.1.0",
+    "mocha": "^8.1.3",
+    "typescript": "^3.9.7",
+    "nyc": "^15.1.0"
   },
   "dependencies": {
-    "json5": "^2.1.0"
+    "json5": "^2.1.3"
   }
 }

@@ -2,3 +2,7 @@ coverage/
 .vscode/
 .travis.yml
 *.tgz
+.github
+images
+src
+test
