@@ -1,5 +1,5 @@
 {
-  "name": "@buckwich/kle-serial",
+  "name": "@qmk-helper/kle-serial",
   "version": "0.15.1",
   "description": "Serialization library for keyboard-layout-editor.com",
   "main": "dist/index.js",

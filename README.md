@@ -33,14 +33,14 @@ readability.
 New function:
 
 ```ts
-import { Serial } from "@buckwich/kle-serial";
+import { Serial } from "@qmk-helper/kle-serial";
 
 let object = Serial.serialize(Your Keyboard object);
 let jsonString = Serial.stringify(Your Keyboard object);
 ```
 
 ```js
-var kle = require("@buckwich/kle-serial");
+var kle = require("@qmk-helper/kle-serial");
 
 var object = kle.Serial.serialize(Your Keyboard object);
 var jsonString = kle.Serial.stringify(Your Keyboard object);
@@ -54,7 +54,7 @@ until it is merged:
 npm link
 
 # In your project
-npm link @buckwich/kle-serial
+npm link @qmk-helper/kle-serial
 ```
 
 ## Installation
