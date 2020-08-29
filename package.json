@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ijprest/kle-serial.git"
+    "url": "git+https://github.com/qmk-helper/kle-serial/"
   },
   "keywords": [
     "kle",
@@ -23,9 +23,9 @@
   "author": "Ian Prest <npmjs.com@ian.prest.ca>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ijprest/kle-serial/issues"
+    "url": "https://github.com/qmk-helper/kle-serial/issues"
   },
-  "homepage": "https://github.com/ijprest/kle-serial#readme",
+  "homepage": "https://github.com/qmk-helper/kle-serial/#readme",
   "devDependencies": {
     "@types/json5": "0.0.30",
     "chai": "^4.2.0",
