@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "build": "tsc",
     "test": "mocha --reporter spec",
     "cover": "nyc --reporter lcov --reporter text-summary npm run test"
