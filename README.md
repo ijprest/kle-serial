@@ -215,6 +215,11 @@ export class Key {
   - Currently supported / known rows: `R1`, `R2`, `R3`, `R4`, `R5`, `SPACE`
 - `sm` / `sb` / `st` — the switch _mount_, _brand_, and _type_, overriding the
   default values specified in the keyboard metadata.
+  
+## Other Languages
+
+The library has been ported to the following languages:
+- [Swift](https://github.com/chrispaynter/kle-serial-swift)
 
 ## Future Work
 
