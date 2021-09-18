@@ -1,5 +1,3 @@
-import * as JSON5 from "json5";
-
 export class Key {
   color: string = "#cccccc";
   labels: string[] = [];
@@ -92,7 +90,7 @@ export module Serial {
   }
 
   function deserializeError(msg, data?) {
-    throw "Error: " + msg + (data ? ":\n  " + JSON5.stringify(data) : "");
+    throw "Error: " + msg + (data ? ":\n  " + JSON.stringify(data) : "");
   }
 
   export function deserialize(rows: Array<any>): Keyboard {
@@ -203,9 +201,5 @@ export module Serial {
       }
     }
     return kbd;
-  }
-
-  export function parse(json: string): Keyboard {
-    return deserialize(JSON5.parse(json));
   }
 }
