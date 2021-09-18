@@ -202,8 +202,4 @@ export module Serial {
     }
     return kbd;
   }
-
-  export function parse(json: string): Keyboard {
-    return deserialize(JSON.parse(json));
-  }
 }
