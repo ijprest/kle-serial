@@ -230,7 +230,7 @@ In rough order of priority:
 2. This library currently only handles _deserialization_; the serialization code
    still needs to be ported.
 3. More tests (particularly on the serialization side, once it's ported; it's
-   much more error-prone that deserialization).
+   much more error-prone than deserialization).
 4. Migrate some of the supporting data from KLE to this project, so you don't
    have to look it up elsewhere, e.g.:
    - Switch mount / brand / type definitions.
