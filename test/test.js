@@ -95,6 +95,14 @@ describe("deserialization", function() {
       expect(result.keys[0].x2).to.not.equal(0);
       expect(result.keys[0].y2).to.not.equal(0);
     });
+
+    it("should add x and y to center of rotation", function() {
+      var result = kbd.Serial.deserialize([[{r:10,rx:1,ry:1,y:-1.1,x:2},"E"]]);
+      expect(result).to.be.an.instanceOf(kbd.Keyboard);
+      expect(result.keys).to.have.length(1);
+      expect(result.keys[0].x).to.equal(3);
+      expect(result.keys[0].y).to.be.closeTo(-0.1, 0.0001);
+    });
   });
 
   describe("of key sizes", function() {
